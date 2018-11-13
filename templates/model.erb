@@ -1,0 +1,42 @@
+<% 
+  imports = %w{Entity property model}
+  imports << 'belongsTo' unless @belongs_to.empty?
+  imports << 'hasMany' unless @has_many.empty?
+%>
+import {<%= imports.join(', ') %>} from '@loopback/repository';
+<% @belongs_to.merge(@has_many).each do |name, value| %>
+import {<%= value %>} from './<%= name %>.model';
+<% end %>
+
+@model({settings: {<%= @adapter %>: {table: '<%= @table_name %>'}}})
+export class <%= @class_name %> extends Entity {
+  @property({
+    type: 'number',
+    id: true
+  })
+  id: number;
+  <% @table.each do |attr, value| %>
+
+  <% if @belongs_to.keys.any? {|key| "#{key}_id" == attr} %>
+  @belongsTo(() => <%= @belongs_to[attr.sub(/_id/, '')] %>, {keyTo: 'id'})
+  <% else %>
+  @property({
+    type: '<%= value %>'
+  })
+  <% end %>
+  <%= attr %>: <%= value %>;
+  <% end %>
+  <% @has_many.each do |name, value| %>
+
+  @hasMany(() => <%= value %>, {keyTo: '<%= @class_name.downcase %>_id'})
+  <%= name.pluralize %>: <%= value %>[];
+  <% end %>
+
+  getId() {
+    return this.id;
+  }
+
+  constructor(data?: Partial<<%= @class_name %>>) {
+    super(data);
+  }
+}

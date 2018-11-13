@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+
+source = target = Dir.pwd
+
+if ARGV.length == 2
+  source, target = ARGV
+elsif ARGV.length == 1
+  if File.exist? File.expand_path('Rakefile', ARGV.first)
+    source = File.expand_path(ARGV.first)
+  elsif File.exist? File.expand_path('index.ts', ARGV.first)
+    target = File.expand_path(ARGV.first)
+  end
+else
+  STDERR.puts "Usage: #{$0} [source] [target]"
+  exit 1
+end
+
+unless File.exist? File.expand_path('Rakefile', source)
+  STDERR.puts 'source directory is not a Rails app'
+  exit 1
+end
+
+unless File.exist? File.expand_path('index.ts', target)
+  STDERR.puts 'target directory is not a lb4  app'
+  exit 1
+end
+
+require 'rails2lb4'
+
+rails2lb4 source, target

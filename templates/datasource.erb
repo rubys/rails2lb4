@@ -1,0 +1,14 @@
+import {inject} from '@loopback/core';
+import {juggler} from '@loopback/repository';
+import * as config from './<%= @adapter %>.datasource.json';
+
+export class Sqlite3DataSource extends juggler.DataSource {
+  static dataSourceName = '<%= @adapter %>';
+
+  constructor(
+    @inject('datasources.config.<%= @adapter %>', {optional: true})
+    dsConfig: object = config,
+  ) {
+    super(dsConfig);
+  }
+}
